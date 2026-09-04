@@ -1,0 +1,375 @@
+================================================================================
+                        WHATSLITE - COMPLETE SETUP GUIDE
+================================================================================
+
+  A WhatsApp-style messenger for Android.
+  Chat, emoji, and live voice calls. Sign in with email only - no phone
+  number, no password, no OTP.
+
+  COST: $0. Everything in this guide is permanently free. No credit card.
+
+  WHAT YOU NEED:  about 15 minutes and 2 free accounts (Neon + Render).
+
+
+--------------------------------------------------------------------------------
+  PART 0 - WHAT THIS IS (read this if the "server" part confuses you)
+--------------------------------------------------------------------------------
+
+  Think of a landline telephone. Your phone only makes a call because there is
+  a telephone exchange in the middle connecting you. If you cut the wires
+  between two houses, no phone can help.
+
+  WhatsLite works the same way. The APK on your phone is the handset. The
+  "server" is the exchange - it introduces you to your friend and relays
+  messages. So installing the APK alone is not enough; you need the exchange
+  switched on somewhere on the internet.
+
+  The good news: Render hosts that exchange for free, permanently, so you never
+  have to think about it again.
+
+  Once Part 1-4 below are done, it works from anywhere - mobile data, any WiFi,
+  different cities. Nothing to keep running on your computer.
+
+
+--------------------------------------------------------------------------------
+  PART 1 - THE DATABASE (Neon)  [about 3 minutes]
+--------------------------------------------------------------------------------
+
+  Why: Render's free hosting wipes its own disk on every restart. Without a
+  separate database your accounts and messages would vanish. Neon holds them
+  for free, forever.
+
+  1. Open  https://neon.tech  and click  Sign up.
+     (Signing up with GitHub or Google is fastest.)
+
+  2. Click  Create a project.
+       - Name:            whatslite
+       - Database name:   leave the default
+       - Region:          pick the one nearest you
+                          (Asia Pacific - Singapore is good for India)
+       - Postgres version: leave the default
+
+  3. When it finishes, it shows a  Connection string. It looks like this:
+
+     postgres://neondb_owner:npg_XXXX@ep-cool-name-123456-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+
+  4. COPY IT. Paste it into a notepad and keep it safe. You need it in Part 3.
+
+     IMPORTANT: keep the  ?sslmode=require  at the very end. It is required.
+
+  That is the whole Neon part. Nothing else to configure.
+
+
+--------------------------------------------------------------------------------
+  PART 2 - PUT THE CODE ON GITHUB  [about 3 minutes]
+--------------------------------------------------------------------------------
+
+  Render deploys code from a GitHub repository.
+
+  1. Open  https://github.com  and sign in (free).
+     Click the  +  at the top right ->  New repository.
+       - Repository name:  whatslite
+       - Choose  Private
+       - Click  Create repository
+
+  2. On the next page, click the link that says
+     "uploading an existing file".
+
+  3. Upload these files from your whatslite folder:
+
+       server/server.js
+       server/db.js
+       server/package.json
+       server/package-lock.json
+       server/Dockerfile
+       server/Procfile
+       server/public/admin.html
+       render.yaml
+       .gitignore
+       README.md
+       QUICKSTART.md
+       DEPLOY.md
+       SETUP.txt
+
+     Drag the whole  server  folder in, then the loose files.
+
+     DO NOT upload:  WhatsLite.apk (49 MB, GitHub will reject it)
+                     node_modules  (folder, if it exists)
+                     android       (only needed to rebuild the APK)
+
+  4. Click  Commit changes.
+
+
+--------------------------------------------------------------------------------
+  PART 3 - START THE SERVER (Render)  [about 5 minutes]
+--------------------------------------------------------------------------------
+
+  1. Open  https://render.com  ->  Get Started  ->  sign in with GitHub.
+
+  2. Click  New  ->  Blueprint.
+
+  3. Pick your  whatslite  repository ->  Connect.
+     (If Render asks to install its GitHub app, allow it.)
+
+  4. Render reads render.yaml and asks for the two values it cannot guess:
+
+       DATABASE_URL   =  the Neon connection string you copied in Part 1
+       ADMIN_KEY      =  a secret YOU invent. This is your admin password.
+                         Example:  k7Xq2-mvpB-91zz
+                         WRITE IT DOWN. You need it in Part 5.
+
+     (JWT_SECRET fills itself in automatically.)
+
+  5. Click  Apply / Create.  Wait 2-4 minutes for the build.
+
+  6. When it says  Live, your server address is shown at the top, like:
+
+       https://whatslite-server.onrender.com
+
+     COPY THIS ADDRESS. You need it on every phone.
+
+  7. CHECK IT WORKS. Open that address in your browser. You should see:
+
+       {"name":"whatslite-server","version":"2.0.0","storage":"postgres", ...}
+
+     "storage" MUST say  postgres.
+     If it says  sqlite, the DATABASE_URL did not save - go to your service's
+     Environment tab, paste the Neon string again, click Save Changes.
+
+  8. Open  https://whatslite-server.onrender.com/admin
+     That is your admin console.
+
+
+--------------------------------------------------------------------------------
+  PART 4 - SET UP THE PHONES  [about 2 minutes each]
+--------------------------------------------------------------------------------
+
+  1. Copy  WhatsLite.apk  to the phone (USB, Google Drive, WhatsApp -
+     anything works).
+
+  2. Tap the APK to install.
+     Android will warn "unknown sources". That is normal for any APK that did
+     not come from the Play Store. Tap  Settings, allow it, go back, install.
+
+  3. Open WhatsLite. In the  Server address  field paste:
+
+       https://whatslite-server.onrender.com
+
+     (use your real address from Part 3, step 6)
+
+  4. Sign in with your Gmail address. Your friend opens the app on their phone,
+     pastes the same address, and signs in with THEIR Gmail.
+
+  5. Tap the  +  button, type your friend's exact email, tap  Add.
+
+  6. Your friend gets a notification, taps  Accept.
+
+  7. Done. Chat, send emoji, tap the phone icon to call.
+
+  From now on the app remembers the address. Just open it and talk.
+
+
+--------------------------------------------------------------------------------
+  PART 5 - THE ADMIN CONSOLE (your control panel)
+--------------------------------------------------------------------------------
+
+  Open it in a browser:
+
+       https://whatslite-server.onrender.com/admin
+
+  OR from inside the app:  menu (three dots) -> Admin console
+
+  Sign in with your  ADMIN_KEY  from Part 3.
+
+  From here you can:
+
+    SWITCH THE SERVER ON OR OFF
+      The big button at the top. When switched off, nobody can sign in or
+      message - the app shows "This server is paused by its administrator."
+      Your data is completely safe while paused. Switch it back on and
+      everything resumes exactly as it was.
+
+    SEE LIVE USAGE
+      Total accounts, people online right now, total messages, total calls,
+      and which database is in use.
+
+    BAN OR UNBAN A PERSON
+      A banned person is kicked offline instantly and cannot sign back in,
+      even if they already have the app installed.
+
+    DELETE A PERSON
+      Removes that account and all their messages permanently. It asks you to
+      confirm first.
+
+  The page refreshes itself every 15 seconds.
+
+
+--------------------------------------------------------------------------------
+  PART 6 - THINGS WORTH KNOWING
+--------------------------------------------------------------------------------
+
+  THE FIRST MESSAGE IS SLOW, THEN IT'S FAST
+    Render's free tier puts the server to sleep when nobody uses it for
+    15 minutes. The first message after a sleep takes 30-60 seconds while it
+    wakes up. After that it is instant. This is normal and only happens on
+    the free plan.
+
+  YOUR MESSAGES ARE SAFE
+    Neon holds your data whether or not Render is awake. That is the entire
+    point of Part 1.
+
+  NEON ALSO SLEEPS
+    Neon's free database switches off after 5 minutes idle and wakes in under
+    a second. Usually you never notice.
+
+  MONTHLY FREE LIMITS
+    Render:  750 free hours/month (one service running 24/7 uses about 720,
+             so a single service fits comfortably) and 5 GB bandwidth.
+    Neon:    0.5 GB storage.
+    That is far more than a handful of people chatting will use.
+
+  VOICE CALLS ARE PEER TO PEER
+    Once a call connects, the audio travels directly between the two phones,
+    not through the server. The server only introduces you. This is why calls
+    are clear even though the server is free.
+
+  BOTH PEOPLE MUST BE ONLINE
+    If your friend's app is closed, the call fails and you see "friend is not
+    online right now". Messages still queue and deliver when they return.
+
+
+--------------------------------------------------------------------------------
+  TROUBLESHOOTING
+--------------------------------------------------------------------------------
+
+  PROBLEM: "Cannot reach server" on the phone
+    - Check the address starts with  https://
+    - Check there is no slash or space at the end
+    - Open the address in the phone's browser. If it loads there, the app will
+      reach it too.
+
+  PROBLEM: storage says "sqlite" instead of "postgres"
+    - DATABASE_URL is missing. On Render go to your service -> Environment ->
+      paste the Neon string -> Save Changes. It redeploys automatically.
+
+  PROBLEM: "This server is paused by its administrator"
+    - You switched it off in the admin console. Switch it back on.
+
+  PROBLEM: The admin console rejects my key
+    - It wants the ADMIN_KEY you invented in Part 3, not your Gmail password.
+
+  PROBLEM: Adding a friend says they do not exist
+    - They must open the app and sign in at least once, so the server learns
+      their address. Then try again.
+
+  PROBLEM: Messages work but calls do not connect
+    - Some mobile networks block direct phone-to-phone audio.
+    - Try both phones on the same WiFi first.
+    - If it still fails, you need a TURN relay (see "optional" below).
+
+  PROBLEM: The first message takes a full minute
+    - The free server waking from sleep. Normal. Every message after is fast.
+
+  PROBLEM: I lost my ADMIN_KEY
+    - On Render: your service -> Environment -> ADMIN_KEY -> show the value.
+      You can also change it there; you will need to sign in again.
+
+  PROBLEM: I want to start completely fresh
+    - In the admin console, delete each person. Or in Neon delete the project
+      and make a new one, then update DATABASE_URL on Render.
+
+
+--------------------------------------------------------------------------------
+  OPTIONAL EXTRAS
+--------------------------------------------------------------------------------
+
+  ADD A TURN SERVER (fixes calls on strict mobile networks)
+    Free TURN servers exist but are unreliable. If calls fail on mobile data,
+    add these on Render -> Environment:
+
+      TURN_URL   =  turn:your-turn-host:3478
+      TURN_USER  =  your-username
+      TURN_PASS  =  your-password
+
+    Then restart the service. The server picks these up automatically.
+
+  CHANGE YOUR SERVER ADDRESS
+    On Render you can rename the service, which changes the address. If you
+    do, every phone needs the new address typed into its Server address field.
+
+  UPDATE THE SERVER CODE LATER
+    Change the files on GitHub and push. Render redeploys automatically.
+    Your Neon data is untouched by redeploys.
+
+  REBUILD THE APK FROM SOURCE
+    You do not need to do this - the APK is already built. But if you edit the
+    Kotlin source, run:
+
+      cd android
+      bash build_apk.sh
+
+    It downloads JDK 17, the Android SDK and Gradle automatically, then builds
+    the APK to  android/app/build/outputs/apk/debug/app-debug.apk.
+    Takes about 6 minutes on a clean machine.
+
+  RUN THE SERVER ON YOUR OWN PC INSTEAD (for testing only)
+      cd server
+      npm install
+      npm start
+
+    Then on the phone use  http://YOUR-PC-IP:3000  as the server address.
+    This only works while your PC is on and on the same network - which is why
+    the Render setup above is the real answer.
+
+
+--------------------------------------------------------------------------------
+  TESTS AND PROOF IT WORKS
+--------------------------------------------------------------------------------
+
+  The server has 56 automated end-to-end tests. They pass on both storage
+  backends:
+
+      cd server
+      npm test                                        -> SQLite
+      DATABASE_URL=postgres://... npm test             -> Postgres / Neon
+
+  They cover: email login, friend requests, realtime message delivery,
+  delivered and read receipts, typing indicators, message history order, the
+  complete voice call handshake (offer, answer, ICE, connected, hangup with
+  recorded duration), the offline and not-friends call errors, and the whole
+  admin console - sign-in, activate, pause, ban, unban and delete.
+
+  Verified live against a real Postgres database:
+      GET  /admin                    -> HTTP 200
+      POST /api/admin/login (wrong)  -> HTTP 401
+      POST /api/login (paused)       -> HTTP 503 server_inactive
+      pause then resume              -> all accounts and messages intact
+
+
+--------------------------------------------------------------------------------
+  WHAT IS IN THE DOWNLOAD
+--------------------------------------------------------------------------------
+
+  WhatsLite.apk        the finished app - install this on both phones
+  SETUP.txt            this file
+  DEPLOY.md            the same deployment steps, formatted for reading online
+  QUICKSTART.md        what the server is and why you need one
+  README.md            technical reference for developers
+  render.yaml          the Render blueprint (used in Part 3)
+  server/              the complete Node.js backend source
+  android/             the complete Android Studio project (Kotlin)
+
+
+--------------------------------------------------------------------------------
+  QUICK RECAP
+--------------------------------------------------------------------------------
+
+    1. Neon    -> create project, copy the connection string
+    2. GitHub  -> upload the server folder and the loose files
+    3. Render  -> New -> Blueprint, paste the string, invent an ADMIN_KEY
+    4. Phones  -> install WhatsLite.apk, paste the Render address, sign in
+    5. Admin   -> /admin  (your ADMIN_KEY is the password)
+
+  Total cost: zero. Total time: about 15 minutes. Then it just works.
+
+================================================================================

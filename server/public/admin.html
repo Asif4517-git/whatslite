@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsLite Admin</title>
+<style>
+  :root{
+    --bg:#0B141A; --panel:#111B21; --panel2:#182229; --line:#233138;
+    --brand:#00A884; --brand2:#008069; --text:#E9EDEF; --muted:#8696A0;
+    --danger:#EA4335; --ok:#25D366; --warn:#FFA726;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:960px;margin:0 auto;padding:24px 18px 80px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+  .logo{width:38px;height:38px;border-radius:11px;background:var(--brand);
+    display:grid;place-items:center;font-weight:800;color:#fff;font-size:18px}
+  h1{font-size:19px;margin:0;font-weight:700}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:1px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:18px;margin-bottom:16px}
+  .card h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;font-weight:700}
+  label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 6px}
+  input[type=password],input[type=text]{width:100%;padding:12px 14px;border-radius:11px;
+    border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:15px;outline:none}
+  input:focus{border-color:var(--brand)}
+  button{border:0;border-radius:11px;padding:12px 18px;font-size:14.5px;font-weight:650;
+    cursor:pointer;background:var(--brand);color:#fff;transition:.15s}
+  button:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  button.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+  button.danger{background:transparent;color:var(--danger);border:1px solid #3a2122}
+  button.danger:hover{background:#2a1617}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:14px}
+  .stat .n{font-size:26px;font-weight:750;letter-spacing:-.02em}
+  .stat .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+  .switch{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .switch .t{font-weight:650}
+  .switch .d{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:52ch}
+  .tog{position:relative;width:56px;height:31px;flex:0 0 auto;cursor:pointer}
+  .tog input{opacity:0;width:0;height:0;position:absolute}
+  .slider{position:absolute;inset:0;background:#3a4a52;border-radius:31px;transition:.2s}
+  .slider:before{content:"";position:absolute;height:23px;width:23px;left:4px;top:4px;
+    background:#fff;border-radius:50%;transition:.2s}
+  .tog input:checked + .slider{background:var(--ok)}
+  .tog input:checked + .slider:before{transform:translateX(25px)}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;
+    border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+  .dot.on{background:var(--ok)} .dot.off{background:var(--danger)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700}
+  td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  .av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-size:12.5px;font-weight:700;flex:0 0 auto}
+  .who{display:flex;align-items:center;gap:10px}
+  .who .e{font-size:12px;color:var(--muted)}
+  .tag{font-size:11px;padding:2px 8px;border-radius:10px;background:#2a1617;color:var(--danger)}
+  .tag.live{background:#12291d;color:var(--ok)}
+  .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+  .hide{display:none}
+  .acts{display:flex;gap:7px;justify-content:flex-end}
+  .acts button{padding:7px 12px;font-size:12.5px}
+  footer{color:var(--muted);font-size:12px;text-align:center;margin-top:26px}
+  @media(max-width:620px){ .acts{justify-content:flex-start} td:nth-child(3){display:none} th:nth-child(3){display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">W</div>
+    <div>
+      <h1>WhatsLite Admin</h1>
+      <div class="sub" id="hostline">control panel</div>
+    </div>
+  </header>
+
+  <!-- LOGIN -->
+  <section class="card" id="loginCard">
+    <h2>Administrator sign in</h2>
+    <label for="key">Admin key</label>
+    <input type="password" id="key" placeholder="ADMIN_KEY from your server settings" autocomplete="current-password">
+    <div class="row" style="margin-top:14px">
+      <button id="btnLogin">Sign in</button>
+    </div>
+    <div class="err" id="loginErr"></div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <div id="dash" class="hide">
+
+    <section class="card">
+      <h2>Server status</h2>
+      <div class="switch">
+        <div>
+          <div class="t">Server active</div>
+          <div class="d">When off, sign-in and messaging are blocked and every app shows
+            “paused by administrator”. Your data is kept — switch it back on at any time.</div>
+        </div>
+        <label class="tog">
+          <input type="checkbox" id="activeToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">…</span></span>
+        <span class="pill" id="storagePill">storage: …</span>
+        <span class="pill" id="uptimePill">uptime …</span>
+        <button class="ghost" id="btnRefresh" style="margin-left:auto">Refresh</button>
+      </div>
+      <div class="err" id="dashErr"></div>
+    </section>
+
+    <section class="card">
+      <h2>Usage</h2>
+      <div class="grid">
+        <div class="stat"><div class="n" id="sUsers">–</div><div class="l">Accounts</div></div>
+        <div class="stat"><div class="n" id="sOnline">–</div><div class="l">Online now</div></div>
+        <div class="stat"><div class="n" id="sMsgs">–</div><div class="l">Messages</div></div>
+        <div class="stat"><div class="n" id="sCalls">–</div><div class="l">Calls</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>People</h2>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>User</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+          <tbody id="userRows"><tr><td colspan="4" style="color:var(--muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="row">
+      <button class="ghost" id="btnLogout">Sign out</button>
+    </div>
+  </div>
+
+  <footer>WhatsLite v2 · self-hosted · your messages stay on your server</footer>
+</div>
+
+<script>
+(function(){
+  var TOKEN = localStorage.getItem('wl_admin_token') || '';
+  var $ = function(id){ return document.getElementById(id); };
+  var PALETTE = ['#EF5350','#EC407A','#AB47BC','#7E57C2','#5C6BC0','#42A5F5','#29B6F6','#26A69A','#66BB6A','#FFA726'];
+
+  $('hostline').textContent = location.origin;
+
+  function colorFor(s){
+    var h = 0; for (var i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) >>> 0;
+    return PALETTE[h % PALETTE.length];
+  }
+  function initials(name, email){
+    var base = (name||'').trim() || (email||'').split('@')[0] || '?';
+    if (base.indexOf(' ') > -1){
+      return base.split(' ').filter(Boolean).slice(0,2).map(function(p){return p[0];}).join('').toUpperCase();
+    }
+    return base.slice(0,2).toUpperCase();
+  }
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function when(ts){
+    if(!ts) return '–';
+    var d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return '–';
+    return d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'2-digit'});
+  }
+
+  function api(path, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({'content-type':'application/json'}, opts.headers||{});
+    if (TOKEN) opts.headers.authorization = 'Bearer ' + TOKEN;
+    return fetch(path, opts).then(function(r){
+      return r.json().then(function(body){
+        if (!r.ok){
+          if (r.status === 401 && TOKEN){ TOKEN=''; localStorage.removeItem('wl_admin_token'); showLogin(); }
+          var e = new Error(body.error || ('http '+r.status)); e.status = r.status; throw e;
+        }
+        return body;
+      });
+    });
+  }
+
+  function showLogin(){
+    $('loginCard').classList.remove('hide');
+    $('dash').classList.add('hide');
+  }
+  function showDash(){
+    $('loginCard').classList.add('hide');
+    $('dash').classList.remove('hide');
+    refresh(); loadUsers();
+  }
+
+  /* ---------------------------------------------------------- login */
+  $('btnLogin').addEventListener('click', doLogin);
+  $('key').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+  function doLogin(){
+    var key = $('key').value.trim();
+    $('loginErr').textContent = '';
+    $('btnLogin').disabled = true;
+    api('/api/admin/login', {method:'POST', body: JSON.stringify({key:key})})
+      .then(function(r){
+        TOKEN = r.token; localStorage.setItem('wl_admin_token', TOKEN);
+        showDash();
+      })
+      .catch(function(e){
+        $('loginErr').textContent = (e.status===401)
+          ? 'Wrong admin key. It is the ADMIN_KEY value set on your server.'
+          : ('Could not reach the server: ' + e.message);
+      })
+      .finally(function(){ $('btnLogin').disabled = false; });
+  }
+
+  $('btnLogout').addEventListener('click', function(){
+    TOKEN=''; localStorage.removeItem('wl_admin_token'); showLogin();
+  });
+
+  /* ----------------------------------------------------- server state */
+  var busy = false;
+
+  function refresh(){
+    return api('/api/admin/state').then(function(s){
+      $('stateText').textContent = s.active ? 'active' : 'paused';
+      $('stateDot').className = 'dot ' + (s.active ? 'on' : 'off');
+      $('storagePill').textContent = 'storage: ' + s.storage;
+      $('activeToggle').checked = !!s.active;
+      $('sUsers').textContent = s.users;
+      $('sOnline').textContent = s.online;
+      $('sMsgs').textContent = s.messages;
+      $('sCalls').textContent = s.calls;
+      $('dashErr').textContent = '';
+      return fetch('/health').then(function(r){return r.json();}).then(function(h){
+        $('uptimePill').textContent = 'uptime ' + Math.round(h.uptime/60) + ' min';
+      }).catch(function(){});
+    }).catch(function(e){ $('dashErr').textContent = e.message; });
+  }
+
+  $('activeToggle').addEventListener('change', function(){
+    if (busy) return;
+    var want = $('activeToggle').checked;
+    busy = true; $('activeToggle').disabled = true;
+    api('/api/admin/activate', {method:'POST', body: JSON.stringify({active: want})})
+      .then(function(){ return refresh(); })
+      .catch(function(e){ $('dashErr').textContent = e.message; $('activeToggle').checked = !want; })
+      .finally(function(){ busy=false; $('activeToggle').disabled=false; });
+  });
+
+  $('btnRefresh').addEventListener('click', function(){ refresh(); loadUsers(); });
+
+  /* ---------------------------------------------------------- users */
+  function loadUsers(){
+    return api('/api/admin/users').then(function(r){
+      var rows = r.users.map(function(u){
+        var col = colorFor(u.email);
+        var status = u.banned
+          ? '<span class="tag">banned</span>'
+          : (u.online ? '<span class="tag live">online</span>' : '<span style="color:var(--muted);font-size:12.5px">offline</span>');
+        var actions = '<div class="acts">'
+          + '<button class="ghost" data-act="ban" data-id="'+u.id+'" data-banned="'+(u.banned?0:1)+'">'
+          +   (u.banned ? 'Unban' : 'Ban') + '</button>'
+          + '<button class="danger" data-act="del" data-id="'+u.id+'" data-email="'+esc(u.email)+'">Delete</button>'
+          + '</div>';
+        return '<tr>'
+          + '<td><div class="who"><span class="av" style="background:'+col+'">'+esc(initials(u.name,u.email))+'</span>'
+          +   '<div><div>'+esc(u.name||u.email)+'</div><div class="e">'+esc(u.email)+'</div></div></div></td>'
+          + '<td>'+status+'</td>'
+          + '<td style="color:var(--muted);font-size:12.5px">'+when(u.created_at)+'</td>'
+          + '<td>'+actions+'</td></tr>';
+      }).join('');
+      $('userRows').innerHTML = rows || '<tr><td colspan="4" style="color:var(--muted)">Nobody has signed in yet.</td></tr>';
+    }).catch(function(e){
+      $('userRows').innerHTML = '<tr><td colspan="4" style="color:var(--danger)">'+esc(e.message)+'</td></tr>';
+    });
+  }
+
+  $('userRows').addEventListener('click', function(ev){
+    var btn = ev.target.closest('button'); if(!btn) return;
+    var id = btn.getAttribute('data-id'), act = btn.getAttribute('data-act');
+    if (act === 'ban'){
+      var banned = btn.getAttribute('data-banned') === '1';
+      api('/api/admin/users/'+id+'/ban', {method:'POST', body: JSON.stringify({banned:banned})})
+        .then(loadUsers).catch(function(e){ alert(e.message); });
+    } else if (act === 'del'){
+      var email = btn.getAttribute('data-email');
+      if (!confirm('Permanently delete ' + email + ' and all their messages?')) return;
+      api('/api/admin/users/'+id, {method:'DELETE'}).then(loadUsers).catch(function(e){ alert(e.message); });
+    }
+  });
+
+  /* ------------------------------------------------------------ boot */
+  if (TOKEN){
+    api('/api/admin/state').then(showDash).catch(showLogin);
+  } else {
+    showLogin();
+  }
+  setInterval(function(){ if(TOKEN && !$('dash').classList.contains('hide')){ refresh(); loadUsers(); } }, 15000);
+})();
+</script>
+</body>
+</html>

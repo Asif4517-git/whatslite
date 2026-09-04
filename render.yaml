@@ -1,0 +1,27 @@
+# Render Blueprint - deploys the WhatsLite server for free.
+#
+# BEFORE YOU DEPLOY: create a free Neon database at https://neon.tech, copy its
+# connection string, and paste it into DATABASE_URL below (or set it in the
+# Render dashboard after deploying). Without it the server falls back to a local
+# SQLite file, which Render wipes on every restart.
+services:
+  - type: web
+    name: whatslite-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Paste your Neon connection string here, e.g.
+      # postgres://user:pass@ep-xyz-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # The key you type into the admin console. Change this!
+      - key: ADMIN_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
